@@ -2,7 +2,7 @@ from matplotlib import pyplot as pyplot
 from random import randrange
 import numpy as np
 
-GRIDSIZE = 10
+GRIDSIZE = 50
 
 class Map:
     def __init__(self):
@@ -18,6 +18,7 @@ class Map:
             print(x)
 
         return grid
+
 
 
 '''
