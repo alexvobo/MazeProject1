@@ -1,11 +1,12 @@
 from Astar_map import Map
 from matplotlib import pyplot as pyplot
-from random import randrange
-
+from matplotlib import widgets as wi
+import random
 
 # just test for range of map
-MAX_X = 10
-MAX_Y = 10
+MAX_X = 50
+MAX_Y = 50
+
 G_VALUE = 1
 
 class Node:
@@ -15,18 +16,21 @@ class Node:
         self.f = f
         self.g = g
         self.h = h
+
         self.parent = parent
+
         self.closed = False
         self.visited = False
 
+    # to make sure to see what instance has
     def __repr__(self):
         return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
 
 '''
 mapData = Map()
 map = mapData.makeMaze()
-'''
 
+'''
 # just test map
 map = [
     [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
@@ -68,6 +72,13 @@ def heuristic(start, end):
     y = abs(start[1] - end[1])
     return x + y
 
+def ret_f_value(closedList):
+    total = 0
+    for i in closedList:
+        total += i.f
+    return total
+
+
 
 # #######################################################################################################
 #    The problem is that how to set start and end positions. Our map is changed barriors every time.
@@ -100,7 +111,6 @@ while openedList is not None:
     closedList.append(current_node)
     current_node.closed = True
     # print(closedList)
-
     # to avoid obstacles added in opened list
     getObstacleLocation = location_of_obstacle(map)
     # print(getObstacleLocation)
@@ -159,20 +169,36 @@ while openedList is not None:
 
         if tmp_cnt_openList < 1:   # no more to go.. We need to go back until find new path
             current_node = current_node.parent  # go back to parent
-            # do sth here not visited
 
 
        # break   # for testing break here temporarily
 
 result_path = getClosedListMemberPos(closedList)
 print(result_path)
+r = ret_f_value(closedList)
+print(r)
 
 cmap = pyplot.cm.binary
 cmap.set_bad(color='blue')
 
 pyplot.imshow(map, interpolation='none', cmap=cmap)
-pyplot.plot([v[1] for v in result_path], [v[0] for v in result_path])
+pyplot.scatter([v[1] for v in result_path], [v[0] for v in result_path])
 pyplot.grid(b=True, which='both', axis='both')
+
+rax = pyplot.axes([0.02, 0.7, 0.15, 0.15])
+radio = wi.RadioButtons(rax, ('Foward', 'Backward', '???'))
+'''
+def foward(sth_here):
+    sth sth sth sth 
+    plt.draw()
+radio.on_clicked(forward)
+'''
 pyplot.show()
 
-
+'''
+########################## Note ############################################################################
+# 1 Diagonol problem on map if I use line: I know I set if visited then no more visited. NEED TO FIX IT.
+    -+-+-> temporarily solved to use scatter instead of plot
+# 2 Start and end position : search if I can use input UI in pyplot back ground to get start and end points
+#############################################################################################################
+'''
