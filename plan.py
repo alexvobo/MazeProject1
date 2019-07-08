@@ -82,9 +82,9 @@ while openedList is not None:
     '''
     process first node, which is start node
     '''
-    print(openedList)
+    # print(openedList)
     current_node = openedList.pop()
-    print(current_node)
+    # print(current_node)
     closedList.append(current_node)
     current_node.closed = True
     # print(closedList)
@@ -93,10 +93,10 @@ while openedList is not None:
     getObstacleLocation = location_of_obstacle(map)
     # print(getObstacleLocation)
 
-    if current_node.pos is end:     # if this node pos is same as end position, we get it. it's destination
+    if current_node.pos == end:     # if this node pos is same as end position, we get it. it's destination
         # print(closedList)
         # later I will set list or tuple to return pos of instance
-        print(getClosedListMemberPos(closedList))
+        #print(getClosedListMemberPos(closedList))
         break
     else:
         '''
@@ -141,11 +141,7 @@ while openedList is not None:
         # print(openedList)    # expected [ ((1,0), 11, 10, 1, ( (0,0), 0, 0, 0, None, Ture), False) ]  -> ok!
 
         # current_node = neighbor_nodes  -> nope!
-        openedList = sorted(openedList, key=lambda obj: obj.f, reverse=True)  # reverse sort because I want to use pop func to move closed list
-        # print(openedList)
-        # len_openList = len(openedList)
-        # print(len_openList)
-        # print(tmp_cnt_openList)
+        openedList = sorted(openedList, key=lambda obj: obj.f, reverse=True)  # reverse sort because I want to use pop func to move to closed list
 
         # compare between length of lists so if it opened list is larger than there is no more path
 
@@ -153,14 +149,11 @@ while openedList is not None:
             current_node = current_node.parent  # go back to parent
             # do sth here not visited
 
-        else:
-            current_node = openedList.pop()   # move to new path
-            closedList.append(current_node)   # and add to closed list
-            current_node.closed = True
 
-        break   # for testing break here temporarily
+       # break   # for testing break here temporarily
 
-print(closedList)
+result_path = getClosedListMemberPos(closedList)
+print(result_path)
 
 
 
