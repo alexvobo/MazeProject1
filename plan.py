@@ -1,3 +1,8 @@
+from Astar_map import Map
+from matplotlib import pyplot as pyplot
+from random import randrange
+
+
 # just test for range of map
 MAX_X = 10
 MAX_Y = 10
@@ -17,6 +22,10 @@ class Node:
     def __repr__(self):
         return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
 
+'''
+mapData = Map()
+map = mapData.makeMaze()
+'''
 
 # just test map
 map = [
@@ -60,8 +69,11 @@ def heuristic(start, end):
     return x + y
 
 
+# #######################################################################################################
+#    The problem is that how to set start and end positions. Our map is changed barriors every time.
+#########################################################################################################
 start = (0,0)
-end = (2,9)
+end = (0,9)
 
 '''
 Testing for Opened list & closed List
@@ -155,6 +167,12 @@ while openedList is not None:
 result_path = getClosedListMemberPos(closedList)
 print(result_path)
 
+cmap = pyplot.cm.binary
+cmap.set_bad(color='blue')
 
+pyplot.imshow(map, interpolation='none', cmap=cmap)
+pyplot.plot([v[1] for v in result_path], [v[0] for v in result_path])
+pyplot.grid(b=True, which='both', axis='both')
+pyplot.show()
 
 
