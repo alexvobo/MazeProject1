@@ -1,11 +1,15 @@
 from Astar_map import Map
 from matplotlib import pyplot as pyplot
 from matplotlib import widgets as wi
-import random
+from matplotlib.widgets import Button
+import time
+
+startTime = time.time()
+
 
 # just test for range of map
-MAX_X = 50
-MAX_Y = 50
+MAX_X = 9
+MAX_Y = 9
 
 G_VALUE = 1
 
@@ -84,7 +88,7 @@ def ret_f_value(closedList):
 #    The problem is that how to set start and end positions. Our map is changed barriors every time.
 #########################################################################################################
 start = (0,0)
-end = (0,9)
+end = (2,9)
 
 '''
 Testing for Opened list & closed List
@@ -151,9 +155,10 @@ while openedList is not None:
 
 
             h = heuristic(available, end)
+            g = G_VALUE
             f = h+1
-            # g value is always 1
-            new_neighbor = Node(available, f, G_VALUE, h, current_node)
+
+            new_neighbor = Node(available, f, g, h, current_node)
             new_neighbor.visited = True
             openedList.append(new_neighbor)
 
@@ -178,21 +183,28 @@ print(result_path)
 r = ret_f_value(closedList)
 print(r)
 
+for i in closedList:
+    print(i.f , " " , i.g , " " , i.h)
+
+# print(time.time() - startTime)
+
 cmap = pyplot.cm.binary
 cmap.set_bad(color='blue')
-
 pyplot.imshow(map, interpolation='none', cmap=cmap)
 pyplot.scatter([v[1] for v in result_path], [v[0] for v in result_path])
 pyplot.grid(b=True, which='both', axis='both')
 
+
+'''
 rax = pyplot.axes([0.02, 0.7, 0.15, 0.15])
 radio = wi.RadioButtons(rax, ('Foward', 'Backward', '???'))
-'''
+
 def foward(sth_here):
     sth sth sth sth 
     plt.draw()
 radio.on_clicked(forward)
 '''
+
 pyplot.show()
 
 '''
