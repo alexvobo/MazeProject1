@@ -1,0 +1,25 @@
+Part 1 - Understanding the methods [10 points]:
+a) Explain in your report why the first move of the agent for the example search problem from Figure 8 is to the east rather
+than the north given that the agent does not know initially which cells are blocked.
+
+    A: The first move of the agent in figure 8 is to the east rather than north because the agent always knows which (unblocked) cell the target is in.
+Since E3 is adjacent to the agent initially, is unblocked, and presumably the shortest path to the target, the agent moves there first.
+
+b) This project argues that the agent is guaranteed to reach the target if it is not separated from it by blocked cells. Give a
+convincing argument that the agent in finite gridworlds indeed either reaches the target or discovers that this is impossible
+in finite time. Prove that the number of moves of the agent until it reaches the target or discovers that this is impossible is
+bounded from above by the number of unblocked cells squared.
+
+    A:
+
+Part 2 - The Effects of Ties [15 points]: Repeated Forward A* needs to break ties to decide which cell to expand next if
+several cells have the same smallest f-value. It can either break ties in favor of cells with smaller g-values or in favor of
+cells with larger g-values. Implement and compare both versions of Repeated Forward A* with respect to their runtime or,
+equivalently, number of expanded cells. Explain your observations in detail, that is, explain what you observed and give a
+reason for the observation.
+[Hint: For the implementation part, priorities can be integers rather than pairs of integers. For example, you can use
+c × f(s) − g(s) as priorities to break ties in favor of cells with larger g-values, where c is a constant larger than the largest
+g-value of any generated cell. For the explanation part, consider which cells both versions of Repeated Forward A* expand
+for the example search problem from Figure 9.]
+
+    A:
