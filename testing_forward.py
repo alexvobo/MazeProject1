@@ -123,8 +123,8 @@ while openedList is not None:
     if tmp_cnt_openList < 1:  # no more to go.. We need to go back until find new path
         back_tracking.append(current_node.pos)
        # closedList.remove(current_node)
-        current_node = current_node.parent  # go back to parent ## 여기 까지 좋아 딱 클로즈 리스트에 있어 근데 여기서 +1 한 3,0이 오픈리스트에도 있어서 1,0으로 올라감
-    else:                                   # 그래서 available안에 오픈리스트 중복으로 집어넣음 어짜피 걸러질때 클로즈에 있어서 걸러짐.
+        current_node = current_node.parent  
+    else:                                   
         current_node = openedList.pop()
         closedList.append(current_node)
         current_node.closed = True
