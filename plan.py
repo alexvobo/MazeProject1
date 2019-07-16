@@ -23,13 +23,15 @@ class Node:
         self.h = h
 
         self.parent = parent
+        self.parent_pos = []  # may not need
+        self.children = 0
 
         self.closed = False
         self.visited = False
 
     # to make sure to see what instance has
     def __repr__(self):
-        return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
+        return repr((self.pos, self.f, self.g, self.h, self.parent, self.parent_pos, self.children, self.closed))
 
 
 def location_of_obstacle(maze):  # to know where are obstacles
@@ -111,6 +113,7 @@ def main():
             '''
             opened_list = []
             closed_list = []
+            temp_blocked_path = []
 
             # first node
             root = Node(start)
@@ -132,6 +135,20 @@ def main():
                 print("HERE",current_node)
                 closed_list.append(current_node)
                 current_node.closed = True
+
+                ### New added
+                checking_node = None
+                if len(closed_list) > 2:
+                    checking_node = closed_list.pop()
+                if current_node.parent is checking_node.parent:
+                    continue
+                else:
+                    closed_list.append(checking_node)
+
+                if opened_list is None:
+                    print("can't reach to the target!")
+
+
                 # print(closed_list)
 
                 # print(get_obstacle_location)
@@ -170,16 +187,33 @@ def main():
                         if available in visited:
                             continue
 
+                        not_path = is_visited(temp_blocked_path)
+                        if available in not_path:
+                            continue
+
+                        # backward = available , start
+                        # frontward = available , end
+                        h = heuristic(end, available)
+                        # print(tmp_end_h)
+                        g = G_VALUE + current_node.g
+                        f = g + h
+                        # ** g value will be cumulative
+                        new_neighbor = Node(available, f, g, h, current_node)
+                        new_neighbor.visited = True
+                        new_neighbor.parent_pos.append(current_node.pos)
+                        # print(new_neighbor.parent_pos)
+                        opened_list.append(new_neighbor)
+                        '''
                         h = heuristic(available, end)
-                        f = h + 1
+                        f = h + G_VALUE
                         # g value is always 1
                         new_neighbor = Node(available, f, G_VALUE, h, current_node)
                         new_neighbor.visited = True
                         opened_list.append(new_neighbor)
-
+                        '''
                         # to prepare if this path will be blocked
                         tmp_cnt_open_list += 1
-
+                    current_node.children = tmp_cnt_open_list  # may not need it
                     # print(opened_list)    # expected [ ((1,0), 11, 10, 1, ( (0,0), 0, 0, 0, None, Ture), False) ]  -> ok!
 
                     # current_node = neighbor_nodes  -> nope!
@@ -188,14 +222,26 @@ def main():
 
                     # compare between length of lists so if it opened list is larger than there is no more path
                     if tmp_cnt_open_list < 1:  # no more to go.. We need to go back until find new path
-                        current_node = current_node.parent  # go back to parent
+                        tmp = current_node
+                        tmp.closed = False
+                        temp_blocked_path.append(tmp)
+                        for i in closed_list:
+                            if i is current_node:
+                                # print(i)
+                                closed_list.remove(i)
 
+                        current_node = current_node.parent  # go back to parent
+                    opened_list = sorted(opened_list, key=lambda obj: obj.f,
+                                        reverse=True)  # reverse sort because I want to use pop func to move to closed list
+                    opened_list = sorted(opened_list, key=lambda obj: obj.g, reverse=True)
                 # break   # for testing break here temporarily
 
             result_path = get_closed_list_member_pos(closed_list)
             print(result_path)
             r = ret_f_value(closed_list)
             print(r)
+
+
 
             cmap = pyplot.cm.binary
             #cmap.set_bad(color='red')
