@@ -1,4 +1,5 @@
 import ast
+import math
 import os
 
 import Astar_map as gridMaker
@@ -33,10 +34,10 @@ class Node:
 
 def location_of_obstacle(maze):  # to know where are obstacles
     obstacle = []
-    for idx1, val1 in enumerate(maze):
-        for idx2, val2 in enumerate(val1):
-            if val2 == 1:
-                obstacle.append((idx1, idx2))
+    for row_i, row in enumerate(maze):
+        for col_i, item in enumerate(row):
+            if maze[row_i][col_i] == 1:
+                obstacle.append((row_i, col_i))
     return obstacle
 
 
@@ -78,6 +79,10 @@ def random_coordinates(grid):
         if agent != target:
             # create another pair of coordinates if agent/target land on an obstacle
             if grid[agent[0]][agent[1]] != 1 and grid[target[0]][target[1]] != 1:
+                print(grid[agent[0]][agent[1]])
+                print(grid[target[0]][target[1]])
+                print('a= ',agent)
+                print('t= ', target)
                 return agent, target
 
 
@@ -87,18 +92,20 @@ def random_coordinates(grid):
 def main():
     # Call main func of gridMaker script. Overwrites all previous instances in 'mazes' up to gridMaker.NUM_MAZES
     gridMaker.main()
-
+    path = 'mazes'
     # Loads mazes in mazes directory
-    for fileName in os.listdir("mazes\\"):
+    for fileName in os.listdir(path):
         print(fileName)
         # Opens first maze file
-        with open(('mazes\\' + fileName), 'r') as file:
+        with open(os.path.join(path, fileName), 'r') as file:
             # Gets grid in string form
             grid_str = file.readline()
             # converts string to list of lists
             grid = ast.literal_eval(grid_str)
             # Generate agent/target for grid
             start, end = random_coordinates(grid)
+            #print('a=',start)
+            #print('t=', end)
             '''
             Testing for Opened list & closed List
             '''
@@ -109,23 +116,24 @@ def main():
             root = Node(start)
             # root.h = heuristic(start, end)  # just test heuristic func - > works!
             opened_list.append(root)
-            # print(opened_list)
+            #print("LIST",opened_list)
             # closed_list.append(root)
             tmp_cnt_open_list = 0
             # print(len_openList)
+            # to avoid obstacles added in opened list
+            get_obstacle_location = location_of_obstacle(grid)
 
-            while opened_list is not None:
+            while opened_list != []:
                 '''
                 process first node, which is start node
                 '''
                 # print(opened_list)
                 current_node = opened_list.pop()
-                # print(current_node)
+                print("HERE",current_node)
                 closed_list.append(current_node)
                 current_node.closed = True
                 # print(closed_list)
-                # to avoid obstacles added in opened list
-                get_obstacle_location = location_of_obstacle(grid)
+
                 # print(get_obstacle_location)
 
                 if current_node.pos == end:  # if this node pos is same as end position, we get it. it's destination
@@ -190,14 +198,22 @@ def main():
             print(r)
 
             cmap = pyplot.cm.binary
-            cmap.set_bad(color='blue')
+            #cmap.set_bad(color='red')
 
-            pyplot.imshow(grid, interpolation='none', cmap=cmap)
-            pyplot.scatter([v[1] for v in result_path], [v[0] for v in result_path])
-            pyplot.grid(b=True, which='both', axis='both')
+            pyplot.imshow(grid, interpolation='none', cmap=cmap, aspect = 1,animated= True)
+            pyplot.scatter([v[0] for v in result_path], [v[1] for v in result_path])
+            print('a=', start)
+            print('t=', end)
+            pyplot.plot(start[0],start[1], 'r+')
+            pyplot.annotate("A", start)
+            pyplot.annotate("T", end)
+            pyplot.plot(end[0],end[1], 'g+')
+            pyplot.plot([v[0] for v in result_path], [v[1] for v in result_path])
 
-            rax = pyplot.axes([0.02, 0.7, 0.15, 0.15])
-            radio = wi.RadioButtons(rax, ('Foward', 'Backward', '???'))
+            #pyplot.grid(b=False, which='both', axis='both')
+
+            #rax = pyplot.axes([0.02, 0.7, 0.15, 0.15])
+            #radio = wi.RadioButtons(rax, ('Foward', 'Backward', '???'))
             '''
             def foward(sth_here):
                 sth sth sth sth 
@@ -205,8 +221,10 @@ def main():
             radio.on_clicked(forward)
             '''
             pyplot.show()
+
             for x in grid:
                 print(x)
+
 
 
 if __name__ == '__main__':

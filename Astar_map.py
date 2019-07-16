@@ -25,14 +25,16 @@ class Map:
 
 def main():
     # Check if mazes folder exists. If not, create it.
-    if not os.path.exists('mazes'):
-        os.makedirs('mazes')
+    path = 'mazes'
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     # Creates NUM_MAZES mazes and saves them in mazes directory
     for i in range(NUM_MAZES):
         map_obj = Map()
-        with open(('mazes\\maze_' + str(i) + '.txt'), 'w') as file:
-            file.write(str(map_obj.make_maze()))
+        with open(os.path.join(path,"maze_" + str(i) + ".txt"), 'w') as file:
+            maze = map_obj.make_maze()
+            file.write(str(maze))
 
 
 # Run this before running plan.py
