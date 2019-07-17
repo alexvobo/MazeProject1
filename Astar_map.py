@@ -2,7 +2,7 @@ import numpy as np
 import os
 
 # GRID_SIZE should match MAX_X, MAX_Y in
-GRID_SIZE = 10  # 101
+GRID_SIZE = 101  # 101
 NUM_MAZES = 5  # 50
 
 

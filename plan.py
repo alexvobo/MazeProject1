@@ -35,13 +35,13 @@ class Node:
         return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
 
 
-def location_of_obstacle(maze):  # to know where are obstacles
-    obstacle = []
-    for row_i, row in enumerate(maze):
-        for col_i, item in enumerate(row):
-            if maze[row_i][col_i] == 1:
-                obstacle.append((col_i, row_i))
-    return obstacle
+# def location_of_obstacle(maze):  # to know where are obstacles
+#     obstacle = []
+#     for row_i, row in enumerate(maze):
+#         for col_i, item in enumerate(row):
+#             if maze[row_i][col_i] == 1:
+#                 obstacle.append((col_i, row_i))
+#     return obstacle
 
 
 # using matplotlib, drawing distance
@@ -81,7 +81,7 @@ def random_coordinates(grid):
         # loop terminates when agent and target do not have the same values.
         if agent != target:
             # create another pair of coordinates if agent/target land on an obstacle
-            if grid[agent[0]][agent[1]] != 1 and grid[target[0]][target[1]] != 1:
+            if grid[agent[1]][agent[0]] != 1 and grid[target[1]][target[0]] != 1:
                 print(grid[agent[0]][agent[1]])
                 print(grid[target[0]][target[1]])
                 print('a= ', agent)
@@ -130,8 +130,8 @@ def main():
             back_tracking = []
             tmp_cnt_openList = 1
             current_node = None
-            get_obstacle_location = location_of_obstacle(grid)
-            print("obstacle: ", location_of_obstacle(grid))
+            #get_obstacle_location = location_of_obstacle(grid)
+            #print("obstacle: ", location_of_obstacle(grid))
             while opened_list != []:
                 '''
                 process first node, which is start node
@@ -147,7 +147,7 @@ def main():
 
                 #print("HERE",current_node)
 
-                if opened_list is None:
+                if opened_list is []:
                     print("can't reach to the target!")
 
 
@@ -173,11 +173,11 @@ def main():
                                       (current_node.pos[0], current_node.pos[1] - 1)]:
 
                         # if out of map, just skip it
-                        if available[0] < 0 or available[1] < 0 or available[0] > MAX_X or available[1] > MAX_Y:
+                        if available[0] < 0 or available[1] < 0 or available[1] >= MAX_X or available[0] >= MAX_Y:
                             continue
 
                         # if obstacle, skip
-                        if available in get_obstacle_location:
+                        if grid[available[1]][available[0]] == 1:
                             continue
 
                         # if node is in closed List, then skip it
@@ -236,14 +236,14 @@ def main():
             #cmap.set_bad(color='red')
 
             pyplot.imshow(grid, interpolation='none', cmap=cmap, aspect = 1,animated= True)
-            pyplot.scatter([v[0] for v in last_list], [v[1] for v in last_list])
+            pyplot.scatter([v[0] for v in last_list], [v[1] for v in last_list],marker=".",edgecolors='red')
             print('a=', start)
             print('t=', end)
             pyplot.plot(start[0],start[1], 'r+')
             pyplot.annotate("A", start)
             pyplot.annotate("T", end)
             pyplot.plot(end[0],end[1], 'g+')
-            pyplot.plot([v[0] for v in last_list], [v[1] for v in last_list])
+            pyplot.plot([v[0] for v in last_list], [v[1] for v in last_list],marker=".")
             pyplot.show()
 
             for x in grid:
