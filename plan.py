@@ -37,7 +37,7 @@ def location_of_obstacle(maze):  # to know where are obstacles
     for row_i, row in enumerate(maze):
         for col_i, item in enumerate(row):
             if maze[row_i][col_i] == 1:
-                obstacle.append((row_i, col_i))
+                obstacle.append((col_i, row_i))
     return obstacle
 
 
