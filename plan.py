@@ -6,6 +6,9 @@ from matplotlib import pyplot
 from collections import OrderedDict
 from itertools import repeat
 from random import randrange
+import os
+import psutil
+import time
 
 # RANGES FOR GRID, SHOULD BE 101.
 # Adjust size of grid in Astar_map file.
@@ -86,7 +89,13 @@ def random_coordinates(grid):
                 return agent, target
 
 
+
 def main():
+    # To check how much memory used
+    process = psutil.Process(os.getpid())
+    mem_before = process.memory_info().rss / 1024 / 1024
+    t1 = time.perf_counter()
+
     # Call main func of gridMaker script. Overwrites all previous instances in 'mazes' up to gridMaker.NUM_MAZES
     gridMaker.main()
     path = 'mazes'
@@ -122,6 +131,7 @@ def main():
             tmp_cnt_openList = 1
             current_node = None
             get_obstacle_location = location_of_obstacle(grid)
+            print("obstacle: ", location_of_obstacle(grid))
             while opened_list != []:
                 '''
                 process first node, which is start node
@@ -135,7 +145,7 @@ def main():
                     closed_list.append(current_node)
                     current_node.closed = True
 
-                print("HERE",current_node)
+                #print("HERE",current_node)
 
                 if opened_list is None:
                     print("can't reach to the target!")
@@ -198,23 +208,27 @@ def main():
 
                     # reverse sort because I want to use pop func to move to closed list
                     opened_list = sorted(opened_list, key=lambda obj: obj.f, reverse=True)
-
-            for i in closed_list:
-                print(i.f, " ", i.g, " ", i.h)
+            t2 = time.perf_counter()
+            # To check how much memory used
+            mem_after = process.memory_info().rss / 1024 / 1024
+            total_time = t2 - t1
+            print("Before memory: {}MB".format(mem_before))
+            print("After memory: {}MB".format(mem_after))
+            print("Total time: {}second".format(total_time))
 
             last_node = closed_list[-1]
-            print(last_node)
+            #print(last_node)
             last_list = []
             last_list.append(last_node.pos)
             parent = last_node.parent
             last_list.append(parent.pos)
-            print(parent)
+            #print(parent)
             while True:
                 parent = parent.parent
                 last_list.append(parent.pos)
                 if parent.pos == start:
                     break
-            print(last_list)
+            #print(last_list)
             last_list.reverse()
             print(last_list)
 
@@ -231,10 +245,11 @@ def main():
             pyplot.plot(end[0],end[1], 'g+')
             pyplot.plot([v[0] for v in last_list], [v[1] for v in last_list])
             pyplot.show()
-            '''
+
             for x in grid:
                 print(x)
-            '''
+
+
 
 
 if __name__ == '__main__':
