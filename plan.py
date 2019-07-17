@@ -1,10 +1,10 @@
 import ast
-import math
 import os
 
 import Astar_map as gridMaker
-from matplotlib import pyplot as pyplot
-from matplotlib import widgets as wi
+from matplotlib import pyplot
+from collections import OrderedDict
+from itertools import repeat
 from random import randrange
 
 # RANGES FOR GRID, SHOULD BE 101.
@@ -15,24 +15,22 @@ G_VALUE = 1
 
 
 class Node:
-    def __init__(self, pos, f=0, g=0, h=0, parent=None):
-        self.pos = pos  # type is tuple
+    def __init__(self, pos, f = 0, g =0, h =0, parent = None):
+        self.pos = pos   # type is tuple
 
         self.f = f
         self.g = g
         self.h = h
 
         self.parent = parent
-        self.parent_pos = []  # may not need
-
+        self.p_pos = []
         self.closed = False
         self.visited = False
 
     # to make sure to see what instance has
-    '''
     def __repr__(self):
-        return repr((self.pos, self.f, self.g, self.h, self.parent, self.parent_pos, self.closed))
-    '''
+        return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
+
 
 def location_of_obstacle(maze):  # to know where are obstacles
     obstacle = []
@@ -83,14 +81,11 @@ def random_coordinates(grid):
             if grid[agent[0]][agent[1]] != 1 and grid[target[0]][target[1]] != 1:
                 print(grid[agent[0]][agent[1]])
                 print(grid[target[0]][target[1]])
-                print('a= ',agent)
+                print('a= ', agent)
                 print('t= ', target)
                 return agent, target
 
 
-# #######################################################################################################
-#    The problem is that how to set start and end positions. Our map is changed barriors every time.
-#########################################################################################################
 def main():
     # Call main func of gridMaker script. Overwrites all previous instances in 'mazes' up to gridMaker.NUM_MAZES
     gridMaker.main()
@@ -117,26 +112,30 @@ def main():
 
             # first node
             root = Node(start)
-            root.h = heuristic(start, end)
-            root.f = root
-            root.parent_pos = start
+            root.h = heuristic(start, end)  # just test heuristic func - > works!
+            root.f = root.h
+            root.p_pos = start
             opened_list.append(root)
 
-            tmp_cnt_open_list = 0
-            # print(len_openList)
-            # to avoid obstacles added in opened list
-            get_obstacle_location = location_of_obstacle(grid)
+            end_Node = Node(end)
             back_tracking = []
+            tmp_cnt_openList = 1
+            current_node = None
+            get_obstacle_location = location_of_obstacle(grid)
             while opened_list != []:
                 '''
                 process first node, which is start node
                 '''
-                # print(opened_list)
-                current_node = opened_list.pop()
-                print("HERE",current_node)
-                closed_list.append(current_node)
-                current_node.closed = True
+                if tmp_cnt_openList < 1:  # no more to go.. We need to go back until find new path
+                    back_tracking.append(current_node.pos)
+                    # closedList.remove(current_node)
+                    current_node = current_node.parent
+                else:
+                    current_node = opened_list.pop()
+                    closed_list.append(current_node)
+                    current_node.closed = True
 
+                print("HERE",current_node)
 
                 if opened_list is None:
                     print("can't reach to the target!")
@@ -147,11 +146,10 @@ def main():
                 # print(get_obstacle_location)
 
                 if current_node.pos == end:  # if this node pos is same as end position, we get it. it's destination
-                    # print(closed_list)
-                    prev_parent = current_node.parent
-                    current_node.g = prev_parent.g + G_VALUE
-                    current_node.h = 0
-                    current_node.f = current_node.g
+                    end_Node.g = current_node.g
+                    end_Node.f = end_Node.g
+                    tmp = current_node.parent
+                    current_node.p_pos = tmp.pos
                     break
                 else:
                     '''
@@ -177,14 +175,11 @@ def main():
                         if available in ret:
                             continue
 
-                        # if node is already in the opened list, then skip it
-                        visited = is_visited(opened_list)
-                        if available in visited:
-                            continue
-
                         if available in back_tracking:
                             # print(back_tracking)
                             continue
+
+
                         # backward = available , start
                         # frontward = available , end
                         h = heuristic(end, available)
@@ -194,78 +189,53 @@ def main():
                         # ** g value will be cumulative
                         new_neighbor = Node(available, f, g, h, current_node)
                         new_neighbor.visited = True
-                        new_neighbor.parent_pos = current_node.pos
+                        new_neighbor.p_pos = current_node.pos #may not needed
                         # print(new_neighbor.parent_pos)
                         opened_list.append(new_neighbor)
 
                         # to prepare if this path will be blocked
                         tmp_cnt_open_list += 1
-                    # print(opened_list)    # expected [ ((1,0), 11, 10, 1, ( (0,0), 0, 0, 0, None, Ture), False) ]  -> ok!
 
-                    # current_node = neighbor_nodes  -> nope!
                     # reverse sort because I want to use pop func to move to closed list
+                    opened_list = sorted(opened_list, key=lambda obj: obj.f, reverse=True)
 
-                    # compare between length of lists so if it opened list is larger than there is no more path
-                    if tmp_cnt_open_list < 1:  # no more to go.. We need to go back until find new path
-                        back_tracking.append(current_node.pos)
-                        current_node = current_node.parent  # go back to parent
-
-                    opened_list = sorted(opened_list, key=lambda obj: obj.f, reverse=True)  # reverse sort because I want to use pop func to move to closed list
-                    ## have to fix little bit more
-                    #opened_list = sorted(opened_list, key=lambda obj: obj.g, reverse=True)
-                # break   # for testing break here temporarily
-
-           # result_path = get_closed_list_member_pos(closed_list)
-            #print(result_path)
-            #r = ret_f_value(closed_list)
-            #print(r)
-            lst = []
             for i in closed_list:
-                lst.append(i.parent_pos)
-            # print(i.p_pos)
-            # print(len(closed_list))
-            # list(OrderedDict.fromkeys(lst))   -> Not work!
-            print(lst)
-            lst.append(end)
+                print(i.f, " ", i.g, " ", i.h)
 
+            last_node = closed_list[-1]
+            print(last_node)
+            last_list = []
+            last_list.append(last_node.pos)
+            parent = last_node.parent
+            last_list.append(parent.pos)
+            print(parent)
+            while True:
+                parent = parent.parent
+                last_list.append(parent.pos)
+                if parent.pos == start:
+                    break
+            print(last_list)
+            last_list.reverse()
+            print(last_list)
 
             cmap = pyplot.cm.binary
             #cmap.set_bad(color='red')
 
             pyplot.imshow(grid, interpolation='none', cmap=cmap, aspect = 1,animated= True)
-            pyplot.scatter([v[0] for v in lst], [v[1] for v in lst])
+            pyplot.scatter([v[0] for v in last_list], [v[1] for v in last_list])
             print('a=', start)
             print('t=', end)
             pyplot.plot(start[0],start[1], 'r+')
             pyplot.annotate("A", start)
             pyplot.annotate("T", end)
             pyplot.plot(end[0],end[1], 'g+')
-            pyplot.plot([v[0] for v in lst], [v[1] for v in lst])
-
-            #pyplot.grid(b=False, which='both', axis='both')
-
-            #rax = pyplot.axes([0.02, 0.7, 0.15, 0.15])
-            #radio = wi.RadioButtons(rax, ('Foward', 'Backward', '???'))
-            '''
-            def foward(sth_here):
-                sth sth sth sth 
-                plt.draw()
-            radio.on_clicked(forward)
-            '''
+            pyplot.plot([v[0] for v in last_list], [v[1] for v in last_list])
             pyplot.show()
-
+            '''
             for x in grid:
                 print(x)
-
+            '''
 
 
 if __name__ == '__main__':
     main()
-
-'''
-########################## Note ############################################################################
-# 1 Diagonol problem on map if I use line: I know I set if visited then no more visited. NEED TO FIX IT.
-    -+-+-> temporarily solved to use scatter instead of plot
-# 2 Start and end position : search if I can use input UI in pyplot back ground to get start and end points
-#############################################################################################################
-'''
