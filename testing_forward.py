@@ -5,8 +5,8 @@ from itertools import repeat
 
 
 # just test for range of map
-MAX_X = 99
-MAX_Y = 99
+MAX_X = 4
+MAX_Y = 4
 
 G_VALUE = 1
 
@@ -27,7 +27,7 @@ class Node:
     def __repr__(self):
         return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
 
-
+'''
 mapData = Map()
 map = mapData.make_maze()
 '''
@@ -38,7 +38,7 @@ map = [
     [0, 0, 1, 0, 0],
     [0, 0, 0, 1, 0]
     ]
-
+'''
 # just test map
 map = [
     [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
@@ -92,8 +92,8 @@ def ret_f_value(closedList):
 # #######################################################################################################
 #    The problem is that how to set start and end positions. Our map is changed barriors every time.
 #########################################################################################################
-start = (0,0)
-end = (99,99)
+start = (4,2)
+end = (4,4)
 
 '''
 Testing for Opened list & closed List
@@ -113,6 +113,7 @@ openedList.append(root)
 # print(len_openList)
 end_Node = Node(end)
 back_tracking = []
+reconized_obstacle = []
 tmp_cnt_openList =1
 current_node = None
 getObstacleLocation = location_of_obstacle(map)
@@ -158,8 +159,18 @@ while openedList is not None:
                 continue
 
             # if obstacle, skip
+            # for re-planning path
             if available in getObstacleLocation:
+                if available in reconized_obstacle:
+                    continue
+                else:
+                    current_node.g = 0
+                    current_node.h = heuristic(current_node.pos, end)
+                    current_node.f = current_node.g + current_node.h
+                reconized_obstacle.append(available)
+                reconized_obstacle = list(OrderedDict(zip(reconized_obstacle, repeat(None)))) # remove duplicate location
                 continue
+
 
             # if node is in closed List, then skip it
             ret = getClosedListMemberPos(closedList)
@@ -179,15 +190,9 @@ while openedList is not None:
             # backward = available , start
             # frontward = available , end
             h = heuristic(end, available)
-            #tmp_g = heuristic(end, available)
-            # tmp_end_h = heuristic(end, available)
-            # end_Node.h = tmp_end_h
-            # print(tmp_end_h)
-            # g = tmp_end_h+ 1
             g = G_VALUE + current_node.g
-            # g = G_VALUE
             f = g + h
-            # g value is always 1
+
             new_neighbor = Node(available, f, g, h, current_node)
             new_neighbor.visited = True
             new_neighbor.p_pos = current_node.pos
@@ -207,27 +212,23 @@ while openedList is not None:
        # break   # for testing break here temporarily
 
 
-for i in closedList:
-    print(i.f, " ", i.g, " ", i.h)
-
-
-
 last_node = closedList[-1]
-print(last_node)
+print(last_node.f," ",last_node.g," ",last_node.h)
 last_list = []
 last_list.append(last_node.pos)
 parent = last_node.parent
 last_list.append(parent.pos)
-print(parent)
+print(parent.f," ",parent.g," ",parent.h)
 while True:
     parent = parent.parent
     last_list.append(parent.pos)
+    print(parent.f, " ", parent.g, " ", parent.h)
     if parent.pos == start:
         break
-print(last_list)
+#print(last_list)
 last_list.reverse()
-print(last_list)
-
+#print(last_list)
+print(reconized_obstacle)
 
 
 cmap = pyplot.cm.binary
