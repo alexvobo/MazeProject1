@@ -1,13 +1,12 @@
 from Astar_map import Map
-from matplotlib import pyplot as pyplot
-from matplotlib import widgets as wi
-from matplotlib.widgets import Button
+from matplotlib import pyplot
 from collections import OrderedDict
+from itertools import repeat
 
 
 # just test for range of map
-MAX_X = 9
-MAX_Y = 9
+MAX_X = 99
+MAX_Y = 99
 
 G_VALUE = 1
 
@@ -21,18 +20,17 @@ class Node:
 
         self.parent = parent
         self.p_pos = []
-        self.num_child = 0
         self.closed = False
         self.visited = False
-        self.expanded = False
 
     # to make sure to see what instance has
     def __repr__(self):
         return repr((self.pos, self.f, self.h, self.g, self.parent, self.closed))
 
-'''
+
 mapData = Map()
 map = mapData.make_maze()
+'''
 map = [
     [0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0],
@@ -40,7 +38,7 @@ map = [
     [0, 0, 1, 0, 0],
     [0, 0, 0, 1, 0]
     ]
-'''
+
 # just test map
 map = [
     [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
@@ -54,6 +52,7 @@ map = [
     [0, 0, 0, 0, 1, 0, 1, 1, 0, 0],
     [0, 1, 1, 0, 1, 1, 1, 1, 1, 0]
     ]
+'''
 
 
 def location_of_obstacle(maze):    #to know where are obstacles
@@ -94,7 +93,7 @@ def ret_f_value(closedList):
 #    The problem is that how to set start and end positions. Our map is changed barriors every time.
 #########################################################################################################
 start = (0,0)
-end = (9,9)
+end = (99,99)
 
 '''
 Testing for Opened list & closed List
@@ -105,9 +104,9 @@ closedList = []
 #first node
 root = Node(start)
 root.h = heuristic(start, end)  # just test heuristic func - > works!
+root.f = root.h
 root.p_pos = start
 openedList.append(root)
-tmp_cnt_openList = 0
 # print(openedList)
 # closedList.append(root)
 
@@ -116,6 +115,7 @@ end_Node = Node(end)
 back_tracking = []
 tmp_cnt_openList =1
 current_node = None
+getObstacleLocation = location_of_obstacle(map)
 while openedList is not None:
     '''
     process first node, which is start node
@@ -123,8 +123,8 @@ while openedList is not None:
     if tmp_cnt_openList < 1:  # no more to go.. We need to go back until find new path
         back_tracking.append(current_node.pos)
        # closedList.remove(current_node)
-        current_node = current_node.parent  
-    else:                                   
+        current_node = current_node.parent
+    else:
         current_node = openedList.pop()
         closedList.append(current_node)
         current_node.closed = True
@@ -133,7 +133,7 @@ while openedList is not None:
     # print(current_node)
     # print(closedList)
     # to avoid obstacles added in opened list
-    getObstacleLocation = location_of_obstacle(map)
+
     # print(getObstacleLocation)
 
     if current_node.pos == end:     # if this node pos is same as end position, we get it. it's destination
@@ -148,7 +148,6 @@ while openedList is not None:
         '''
         #print(len_openList)
         tmp_cnt_openList = 0
-        check_parent = 0
         for available in [(current_node.pos[0]+1, current_node.pos[1]),
                           (current_node.pos[0], current_node.pos[1]+1),
                           (current_node.pos[0]-1, current_node.pos[1]),
@@ -160,9 +159,6 @@ while openedList is not None:
 
             # if obstacle, skip
             if available in getObstacleLocation:
-                current_node.g = 0
-                current_node.h = heuristic(current_node.pos, end)
-                current_node.f = current_node.g + current_node.h
                 continue
 
             # if node is in closed List, then skip it
@@ -195,6 +191,7 @@ while openedList is not None:
             new_neighbor = Node(available, f, g, h, current_node)
             new_neighbor.visited = True
             new_neighbor.p_pos = current_node.pos
+            #end_Node.p_pos = current_node.pos
             openedList.append(new_neighbor)
 
             # to prepare if this path will be blocked, count children
@@ -209,30 +206,34 @@ while openedList is not None:
 
        # break   # for testing break here temporarily
 
-result_path = getClosedListMemberPos(closedList)
-# print(result_path)
-r = ret_f_value(closedList)
-# print(r)
-lst = []
-for i in closedList:
-    lst.append(i.p_pos)
-   # print(i.p_pos)
-# print(len(closedList))
-#list(OrderedDict.fromkeys(lst))
-print(lst)
-lst.append(end)
-print(back_tracking)
-for i in back_tracking:
-    for j in lst:
-        if i == j:
-            lst.remove(j)
-print(lst)
+
 for i in closedList:
     print(i.f, " ", i.g, " ", i.h)
+
+
+
+last_node = closedList[-1]
+print(last_node)
+last_list = []
+last_list.append(last_node.pos)
+parent = last_node.parent
+last_list.append(parent.pos)
+print(parent)
+while True:
+    parent = parent.parent
+    last_list.append(parent.pos)
+    if parent.pos == start:
+        break
+print(last_list)
+last_list.reverse()
+print(last_list)
+
+
+
 cmap = pyplot.cm.binary
 cmap.set_bad(color='blue')
 pyplot.imshow(map, interpolation='none', cmap=cmap)
-pyplot.plot([v[1] for v in lst], [v[0] for v in lst])
+pyplot.plot([v[1] for v in last_list], [v[0] for v in last_list])
 pyplot.grid(b=True, which='both', axis='both')
 
 pyplot.show()
