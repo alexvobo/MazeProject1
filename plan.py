@@ -105,6 +105,8 @@ def main():
             grid = ast.literal_eval(grid_str)
             # Generate agent/target for grid
             start, end = random_coordinates(grid)
+            # start = (76, 21)
+            # end = (47, 98)
 
             '''
                 open list should be priority queue(extra points)
@@ -123,7 +125,7 @@ def main():
             back_tracking = []
             tmp_cnt_openList = 1
             current_node = None
-
+            cnt = 0
             while opened_list is not None:
                 '''
                 process first node, which is start node
@@ -136,16 +138,13 @@ def main():
                     current_node = opened_list.pop()
                     closed_list.append(current_node)
                     current_node.closed = True
+                    cnt+=1
 
                 if opened_list is []:
                     print("can't reach to the target!")
                     continue
 
                 if current_node.pos == end:  # if this node pos is same as end position, we get it. it's destination
-                    end_Node.g = current_node.g
-                    end_Node.f = end_Node.g
-                    tmp = current_node.parent
-                    current_node.p_pos = tmp.pos
                     break
                 else:
                     '''
@@ -173,7 +172,7 @@ def main():
                         ret = get_closed_list_member_pos(closed_list)
 
                         if available in back_tracking:
-                            print("HERE")
+                            #print("HERE")
                             continue
 
                         if available in ret:
@@ -198,7 +197,7 @@ def main():
                         tmp_cnt_openList += 1
 
                     # reverse sort because I want to use pop func to move to closed list
-                    opened_list = sorted(opened_list, key=lambda obj: obj.f, reverse=True)
+                    opened_list = sorted(opened_list, key=lambda obj: (obj.f, -obj.g), reverse=True)
             t2 = time.perf_counter()
             # To check how much memory used
             mem_after = process.memory_info().rss / 1024 / 1024
@@ -206,7 +205,7 @@ def main():
             print("Before memory: {}MB".format(mem_before))
             print("After memory: {}MB".format(mem_after))
             print("Total time: {}second".format(total_time))
-
+            print("Total expanded: ", cnt)
             last_node = closed_list[-1]
             last_list = []
             last_list.append(last_node.pos)
@@ -240,8 +239,6 @@ def main():
 
             pyplot.show()
 
-            for x in grid:
-                print(x)
 
 
 if __name__ == '__main__':
