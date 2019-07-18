@@ -3,7 +3,7 @@ import os
 
 # GRID_SIZE should match MAX_X, MAX_Y in
 GRID_SIZE = 101  # 101
-NUM_MAZES = 5  # 50
+NUM_MAZES = 50  # 50
 
 
 class Map:
